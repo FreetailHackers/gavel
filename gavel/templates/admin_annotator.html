@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Annotator{% endblock %}
+{% block title %}Judge{% endblock %}
 {% block content %}
 <div class="item">
   <div class="banner" id="admin-header">
@@ -26,6 +26,10 @@
       <tr>
         <th>Secret</th>
         <td>{{ annotator.secret }}</td>
+      </tr>
+      <tr>
+        <th>Login URL</th>
+        <td><a href="{{ login_link }}" target="_blank">{{ login_link }}</a></td>
       </tr>
       <tr>
         <th>Next</th>
