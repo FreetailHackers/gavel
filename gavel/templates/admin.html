@@ -157,9 +157,10 @@
   </div>
   <div class="info">
     <p>Add name, location, description (CSV format) with a file upload</p>
-    <form action="/admin/itemcsv" method=post enctype=multipart/form-data>
+    <form action="/admin/item" method=post enctype=multipart/form-data>
     <input type='file' name='file'>
     <input type='submit' value="Upload and Process Selected File">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 </form>
   </div>
 </div>
