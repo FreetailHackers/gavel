@@ -65,15 +65,6 @@ def item():
             _item = Item(*row)
             db.session.add(_item)
         db.session.commit()
-    elif action == 'file':
-        file = request.files['file']
-        if file and allowed_file(file.filename):
-            extention = str(file.filename.rsplit('.', 1)[1].lower())
-            if extention == "xlsx" or extention == "xls":
-                dirToSave = str(os.getcwd())
-                filename = secure_filename(file.filename)
-                dirToSave += "/spreadsheets/" + filename
-                file.save(dirToSave)
     elif action == 'Prioritize' or action == 'Cancel':
         item_id = request.form['item_id']
         target_state = action == 'Prioritize'
@@ -94,6 +85,74 @@ def item():
             return render_template('error.html', message=str(e))
     return redirect(url_for('admin'))
 
+
+@app.route('/admin/itemcsv', methods = ['POST'])
+@utils.requires_auth
+def csvread():
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        extention = str(file.filename.rsplit('.', 1)[1].lower())
+        if extention == "xlsx" or extention == "xls":
+            dirToSave = str(os.getcwd())
+            filename = secure_filename(file.filename)
+            dirToSave += "/spreadsheets/" + filename
+            #ERROR IS HERE
+            file.save(dirToSave)
+            workbook = xlrd.open_workbook(dirToSave)
+            worksheet = workbook.sheet_by_index(0)
+            #must make sure that the rows are filled.
+            for rx in range(worksheet.nrows):
+                allFound = True
+                try:
+                    int(worksheet.cell_value(rowx = rx, colx = 0))
+                except (IndexError, ValueError):
+                    allFound = False
+                    break
+                if allFound:
+                    try:
+                        int(worksheet.cell_value(rowx = rx, colx = 1))
+                    except (IndexError, ValueError):
+                        allFound = False
+                        break
+                    if allFound:
+                        try:
+                            int(worksheet.cell_value(rowx = rx, colx = 2))
+                        except (IndexError, ValueError):
+                            allFound = False
+                            break
+                if allFound:
+                    #add to the db
+                    #TODO Issue with adding to db
+                    result = str(worksheet.cell_value(rowx = rx, colx = 0)) + ","
+                    result += str(worksheet.cell_value(rowx = rx, colx = 1)) + ","
+                    result += str(worksheet.cell_value(rowx = rx, colx = 2)) + "\n"
+                    data = utils.data_from_csv_string(str(result))
+                    for row in data:
+                        _item = Item(*row)
+                        db.session.add(_item)
+                    db.session.commit()
+            os.remove(dirToSave)
+        elif extention == "csv":
+            dirToSave = str(os.getcwd())
+            filename = secure_filename(file.filename)
+            dirToSave += "/spreadsheets/" + filename
+            file.save(dirToSave)
+            f = open(dirToSave)
+            r = csv.reader(f)
+            for row in r:
+                if row[0] == "" or row[1] == "" or row[2] == "":
+                    break;
+                else:
+                    result = str(row[0]) + "," + str(row[1]) + "," + str(row[2]) + "\n"
+                    data = utils.data_from_csv_string(result)
+                    for row in data:
+                        #TODO FIX ADDING TO DB
+                        _item = Item(*row)
+                        db.session.add(_item)
+                    db.session.commit()
+            #deleted file
+            os.remove(dirToSave)
+    return redirect(url_for('admin'))
 
 
 def allowed_file(filename):
