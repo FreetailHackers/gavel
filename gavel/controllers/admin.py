@@ -71,6 +71,9 @@ def item():
             extention = str(file.filename.rsplit('.', 1)[1].lower())
             if extention == "xlsx" or extention == "xls":
                 dirToSave = str(os.getcwd())
+                filename = secure_filename(file.filename)
+                dirToSave += "/spreadsheets/" + filename
+                file.save(dirToSave)
     elif action == 'Prioritize' or action == 'Cancel':
         item_id = request.form['item_id']
         target_state = action == 'Prioritize'
