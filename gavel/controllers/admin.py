@@ -4,12 +4,20 @@ from gavel.constants import *
 import gavel.settings as settings
 import gavel.utils as utils
 from flask import (
+    Flask,
     redirect,
     render_template,
     request,
     url_for,
 )
 import urllib.parse
+import csv
+import flask
+import werkzeug
+from werkzeug import *
+import xlrd
+import os
+
 ALLOWED_EXTENSIONS = set(['csv', 'xlsx', 'xls'])
 
 @app.route('/admin/')
@@ -78,13 +86,69 @@ def item():
     return redirect(url_for('admin'))
 
 
-#TODO: CSV
-@app.route('/admin/itemcsv', methods=['POST'])
+@app.route('/admin/itemcsv', methods = ['POST'])
 @utils.requires_auth
-def item_csv():
+def csvread():
     file = request.files['file']
     if file and allowed_file(file.filename):
-
+        extention = str(file.filename.rsplit('.', 1)[1].lower())
+        if extention == "xlsx" or extention == "xls":
+            dirToSave = str(os.getcwd())
+            filename = secure_filename(file.filename)
+            dirToSave += "/spreadsheets/" + filename
+            file.save(dirToSave)
+            workbook = xlrd.open_workbook(dirToSave)
+            worksheet = workbook.sheet_by_index(0)
+            #must make sure that the rows are filled.
+            for rx in range(worksheet.nrows):
+                allFound = True
+                try:
+                    int(worksheet.cell_value(rowx = rx, colx = 0))
+                except (IndexError, ValueError):
+                    allFound = False
+                    break
+                if allFound:
+                    try:
+                        int(worksheet.cell_value(rowx = rx, colx = 1))
+                    except (IndexError, ValueError):
+                        allFound = False
+                        break
+                    if allFound:
+                        try:
+                            int(worksheet.cell_value(rowx = rx, colx = 2))
+                        except (IndexError, ValueError):
+                            allFound = False
+                            break
+                if allFound:
+                    #add to the db
+                    result = int(worksheet.cell_value(rowx = rx, colx = 0))
+                    result += int(worksheet.cell_value(rowx = rx, colx = 1))
+                    result += int(worksheet.cell_value(rowx = rx, colx = 2))
+                    data = utils.data_from_csv_string(result)
+                    for row in data:
+                        _item = Item(*row)
+                        db.session.add(_item)
+            db.session.commit()
+            os.remove(dirToSave)
+        elif extention == "csv":
+            dirToSave = str(os.getcwd())
+            filename = secure_filename(file.filename)
+            dirToSave += "/spreadsheets/" + filename
+            file.save(dirToSave)
+            f = open(dirToSave)
+            r = csv.reader(f)
+            for row in r:
+                if row[0] == "" or row[1] == "" or row[2] == "":
+                    break;
+                else:
+                    result = row[0] + "," + row[1] + "," + row[2]
+                    data = utils.data_from_csv_string(result)
+                    for row in data:
+                        _item = Item(*row)
+                        db.session.add(_item)
+            #deleted file
+            db.session.commit()
+            os.remove(dirToSave)
     return redirect(url_for('admin'))
 
 def allowed_file(filename):
