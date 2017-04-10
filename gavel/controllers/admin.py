@@ -125,7 +125,11 @@ def csvread():
                     result = str(worksheet.cell_value(rowx = rx, colx = 0)) + ","
                     result += str(worksheet.cell_value(rowx = rx, colx = 1)) + ","
                     result += str(worksheet.cell_value(rowx = rx, colx = 2)) + "\n"
-                    
+                    #data = utils.data_from_csv_string(result)
+                    #for row in data:
+                        #_item = Item(*row)
+                        #db.session.add(_item)
+                    #b.session.commit()
             os.remove(dirToSave)
         elif extention == "csv":
             dirToSave = str(os.getcwd())
@@ -139,12 +143,12 @@ def csvread():
                     break;
                 else:
                     result = str(row[0]) + "," + str(row[1]) + "," + str(row[2]) + "\n"
-                    data = utils.data_from_csv_string(result)
-                    for row in data:
+                    #data = utils.data_from_csv_string(result)
+                    #for row in data:
                         #TODO FIX ADDING TO DB
-                        _item = Item(*row)
-                        db.session.add(_item)
-                    db.session.commit()
+                        #_item = Item(*row)
+                        #db.session.add(_item)
+                    #db.session.commit()
             #deleted file
             os.remove(dirToSave)
     return redirect(url_for('admin'))
