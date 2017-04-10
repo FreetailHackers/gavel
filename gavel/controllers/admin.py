@@ -128,7 +128,7 @@ def csvread():
                     for row in data:
                         _item = Item(*row)
                         db.session.add(_item)
-            db.session.commit()
+                    db.session.commit()
             os.remove(dirToSave)
         elif extention == "csv":
             dirToSave = str(os.getcwd())
@@ -146,8 +146,8 @@ def csvread():
                     for row in data:
                         _item = Item(*row)
                         db.session.add(_item)
+                    db.session.commit()
             #deleted file
-            db.session.commit()
             os.remove(dirToSave)
     return redirect(url_for('admin'))
 
