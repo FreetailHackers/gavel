@@ -125,11 +125,7 @@ def csvread():
                     result = str(worksheet.cell_value(rowx = rx, colx = 0)) + ","
                     result += str(worksheet.cell_value(rowx = rx, colx = 1)) + ","
                     result += str(worksheet.cell_value(rowx = rx, colx = 2)) + "\n"
-                    data = utils.data_from_csv_string(str(result))
-                    for row in data:
-                        _item = Item(*row)
-                        db.session.add(_item)
-                    db.session.commit()
+                    
             os.remove(dirToSave)
         elif extention == "csv":
             dirToSave = str(os.getcwd())
