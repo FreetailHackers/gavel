@@ -159,7 +159,7 @@
     <p>Add name, location, description (CSV format) with a file upload</p>
     <form action="/admin/itemcsv" method=post enctype=multipart/form-data>
     <input type='file' name='file'>
-    <input type='submit' name = "action" value="Submit" class="button-full positive">
+    <input type='submit' name = "file" class="button-full positive" accept=".csv,.xls,.xlsx">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 </form>
   </div>
