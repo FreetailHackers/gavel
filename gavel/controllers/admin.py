@@ -122,10 +122,10 @@ def csvread():
                 if allFound:
                     #add to the db
                     #TODO Issue with adding to db
-                    result = int(worksheet.cell_value(rowx = rx, colx = 0)) + ","
-                    result += int(worksheet.cell_value(rowx = rx, colx = 1)) + ","
-                    result += int(worksheet.cell_value(rowx = rx, colx = 2)) + "\n"
-                    data = utils.data_from_csv_string(result)
+                    result = str(worksheet.cell_value(rowx = rx, colx = 0)) + ","
+                    result += str(worksheet.cell_value(rowx = rx, colx = 1)) + ","
+                    result += str(worksheet.cell_value(rowx = rx, colx = 2)) + "\n"
+                    data = utils.data_from_csv_string(str(result))
                     for row in data:
                         _item = Item(*row)
                         db.session.add(_item)
@@ -142,7 +142,7 @@ def csvread():
                 if row[0] == "" or row[1] == "" or row[2] == "":
                     break;
                 else:
-                    result = row[0] + "," + row[1] + "," + row[2]
+                    result = str(row[0]) + "," + str(row[1]) + "," + str(row[2]) + "\n"
                     data = utils.data_from_csv_string(result)
                     for row in data:
                         #TODO FIX ADDING TO DB
