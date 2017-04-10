@@ -140,15 +140,27 @@
 
 <div class="item">
   <div class="banner">
-    <h2>Add Projects</h2>
+    <h2>Add Projects Manually</h2>
   </div>
   <div class="info">
-    <p>name, location, description (CSV format)</p>
+    <p>Add name, location, description (CSV format) manually</p>
     <textarea name="data" form="item_form"></textarea>
     <form action="/admin/item" method="post" id="item_form">
       <input type="submit" name="action" value="Submit" class="button-full positive">
       <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     </form>
+  </div>
+</div>
+<div class="item">
+  <div class="banner">
+    <h2>Add Projects Automatically</h2>
+  </div>
+  <div class="info">
+    <p>Add name, location, description (CSV format) with a file upload</p>
+    <form action="/admin/itemcsv" method=post enctype=multipart/form-data>
+    <input type='file' name='file'>
+    <input type='submit' value="Upload and Process Selected File">
+</form>
   </div>
 </div>
 

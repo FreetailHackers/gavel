@@ -10,6 +10,7 @@ from flask import (
     url_for,
 )
 import urllib.parse
+ALLOWED_EXTENSIONS = set(['csv', 'xlsx', 'xls'])
 
 @app.route('/admin/')
 @utils.requires_auth
@@ -75,6 +76,21 @@ def item():
         except IntegrityError as e:
             return render_template('error.html', message=str(e))
     return redirect(url_for('admin'))
+
+
+#TODO: CSV
+@app.route('/admin/itemcsv', methods=['POST'])
+@utils.requires_auth
+def item_csv():
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+
+    return redirect(url_for('admin'))
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @app.route('/admin/item_patch', methods=['POST'])
 @utils.requires_auth
