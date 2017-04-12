@@ -59,12 +59,12 @@ def admin():
 def item():
     action = request.form['action']
     if action == 'Submit':
-        csv = request.form['data']
-        data = utils.data_from_csv_string(csv)
-        for row in data:
-            _item = Item(*row)
-            db.session.add(_item)
-        db.session.commit()
+        data = parse_upload_form()
+        if data:
+            for row in data:
+                _item = Item(*row)
+                db.session.add(_item)
+            db.session.commit()
     elif action == 'Prioritize' or action == 'Cancel':
         item_id = request.form['item_id']
         target_state = action == 'Prioritize'
@@ -86,78 +86,26 @@ def item():
     return redirect(url_for('admin'))
 
 
-@app.route('/admin/itemcsv', methods = ['POST'])
-@utils.requires_auth
-def csvread():
-    file = request.files['file']
-    if file and allowed_file(file.filename):
-        extention = str(file.filename.rsplit('.', 1)[1].lower())
-        if extention == "xlsx" or extention == "xls":
-            dirToSave = str(os.getcwd())
-            filename = secure_filename(file.filename)
-            dirToSave += "/spreadsheets/" + filename
-            #ERROR IS HERE
-            file.save(dirToSave)
-            workbook = xlrd.open_workbook(dirToSave)
-            worksheet = workbook.sheet_by_index(0)
-            #must make sure that the rows are filled.
-            for rx in range(worksheet.nrows):
-                allFound = True
-                try:
-                    int(worksheet.cell_value(rowx = rx, colx = 0))
-                except (IndexError, ValueError):
-                    allFound = False
-                    break
-                if allFound:
-                    try:
-                        int(worksheet.cell_value(rowx = rx, colx = 1))
-                    except (IndexError, ValueError):
-                        allFound = False
-                        break
-                    if allFound:
-                        try:
-                            int(worksheet.cell_value(rowx = rx, colx = 2))
-                        except (IndexError, ValueError):
-                            allFound = False
-                            break
-                if allFound:
-                    #add to the db
-                    #TODO Issue with adding to db
-                    result = str(worksheet.cell_value(rowx = rx, colx = 0)) + ","
-                    result += str(worksheet.cell_value(rowx = rx, colx = 1)) + ","
-                    result += str(worksheet.cell_value(rowx = rx, colx = 2)) + "\n"
-                    data = utils.data_from_csv_string(str(result))
-                    for row in data:
-                        _item = Item(*row)
-                        db.session.add(_item)
-                    db.session.commit()
-            os.remove(dirToSave)
-        elif extention == "csv":
-            dirToSave = str(os.getcwd())
-            filename = secure_filename(file.filename)
-            dirToSave += "/spreadsheets/" + filename
-            file.save(dirToSave)
-            f = open(dirToSave)
-            r = csv.reader(f)
-            for row in r:
-                if row[0] == "" or row[1] == "" or row[2] == "":
-                    break;
-                else:
-                    result = str(row[0]) + "," + str(row[1]) + "," + str(row[2]) + "\n"
-                    data = utils.data_from_csv_string(result)
-                    for row in data:
-                        #TODO FIX ADDING TO DB
-                        _item = Item(*row)
-                        db.session.add(_item)
-                    db.session.commit()
-            #deleted file
-            os.remove(dirToSave)
-    return redirect(url_for('admin'))
-
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def parse_upload_form():
+    f = request.files['file']
+    data = []
+    if f and allowed_file(f.filename):
+        extension = str(f.filename.rsplit('.', 1)[1].lower())
+        if extension == "xlsx" or extension == "xls":
+            workbook = xlrd.open_workbook(file_contents=f.read())
+            worksheet = workbook.sheet_by_index(0)
+            data = list(utils.cast_row(worksheet.row_values(rx, 0, 3)) for rx in range(worksheet.nrows) if worksheet.row_len(rx) == 3)
+        elif extension == "csv":
+            data = utils.data_from_csv_string(f.read().decode("utf-8"))
+    else:
+        csv = request.form['data']
+        data = utils.data_from_csv_string(csv)
+    return data
 
 
 @app.route('/admin/item_patch', methods=['POST'])
@@ -180,18 +128,18 @@ def item_patch():
 def annotator():
     action = request.form['action']
     if action == 'Submit':
-        csv = request.form['data']
-        data = utils.data_from_csv_string(csv)
+        data = parse_upload_form()
         added = []
-        for row in data:
-            annotator = Annotator(*row)
-            added.append(annotator)
-            db.session.add(annotator)
-        db.session.commit()
-        try:
-            email_invite_links(added)
-        except Exception as e:
-            return render_template('error.html', message=str(e))
+        if data:
+            for row in data:
+                annotator = Annotator(*row)
+                added.append(annotator)
+                db.session.add(annotator)
+            db.session.commit()
+            try:
+                email_invite_links(added)
+            except Exception as e:
+                return render_template('error.html', message=str(e))
     elif action == 'Email':
         annotator_id = request.form['annotator_id']
         try:

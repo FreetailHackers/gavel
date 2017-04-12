@@ -104,3 +104,13 @@ def send_telemetry(identifier, data):
         )
     except Exception:
         pass # don't want this to break anything else
+
+# convert workbook sheet cells into integers if they are equal to integer
+# values and convert everything to a string
+def cast_row(row):
+    for i, item in enumerate(row):
+        if isinstance(item, (float, int)) and int(item) == item:
+            row[i] = str(int(item))
+        else:
+            row[i] = str(item)
+    return row
