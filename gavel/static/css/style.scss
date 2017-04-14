@@ -274,6 +274,10 @@ input[type=submit].neutral {
   color: $dark;
 }
 
+input[type=submit].invalid {
+  background-color: $grey-color;
+}
+
 .disabled {
   background-color: $disabled-color;
 }

@@ -4,6 +4,7 @@ $branding-red: #fc5454;
 $branding-yellow: #ffe86b;
 $branding-green: #c9d41b;
 $branding-dark: #0b3b4b;
+$branding-grey: #ABA8A8;
 
 $wait-color: $branding-yellow;
 $error-color: $branding-red;
@@ -18,6 +19,7 @@ $prioritized-color: mix($branding-green, white, 25%);
 $positive-color: $branding-green;
 $negative-color: $branding-red;
 $neutral-color: $branding-yellow;
+$grey-color: $branding-grey;
 
 $text-color: #000000;
 $link-color: mix($branding-turquoise, black, 50%);
