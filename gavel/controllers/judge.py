@@ -104,6 +104,8 @@ def welcome():
         'welcome.html',
         content=utils.render_markdown(settings.WELCOME_MESSAGE)
     )
+    
+@requires_active_annotator(redirect_to='index')
 def begin():
     annotator = get_current_annotator()
     if annotator.next.id == int(request.form['item_id']):
