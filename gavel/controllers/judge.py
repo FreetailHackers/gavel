@@ -44,7 +44,7 @@ def index():
     annotator = get_current_annotator()
     if annotator is None:
         return render_template(
-            'logged_out.html', 
+            'logged_out.html',
             content=utils.render_markdown(settings.LOGGED_OUT_MESSAGE)
         )
     else:
@@ -98,13 +98,6 @@ def vote():
 
 @app.route('/begin', methods=['POST'])
 @requires_open(redirect_to='index')
-@requires_active_annotator(redirect_to='index')
-def welcome():
-    return render_template(
-        'welcome.html',
-        content=utils.render_markdown(settings.WELCOME_MESSAGE)
-    )
-    
 @requires_active_annotator(redirect_to='index')
 def begin():
     annotator = get_current_annotator()
