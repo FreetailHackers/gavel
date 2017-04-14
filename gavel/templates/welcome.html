@@ -8,6 +8,9 @@
   <div class="info">
     {{ content }}
   </div>
+  {% with item=item %}
+  {% include "_item.html" %}
+  {% endwith %}
 </div>
 
 <div class="item">
