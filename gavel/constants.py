@@ -18,17 +18,13 @@ Welcome to Gavel.
 Gavel is a fully automated expo judging system that both tells you where to go
 and collects your votes.
 
-The system is based on the model of pairwise comparison. You'll start off by
-looking at a single submission, and then for every submission after that,
+You'll start off by looking at a single submission. If this submission is not
+at their location, press the 'Skip' button. For every submission after that,
 you'll decide whether it's better or worse than the one you looked at
-**immediately beforehand**.
+**immediately before**. Repeat this process until you've seen all submissions!
 
-If at any point, you can't find a particular submission, you can click the
-'Skip' button and you will be assigned a new project. **Please don't skip
-unless absolutely necessary.**
-
-Gavel makes it really simple for you to submit votes, but please think hard
-before you vote. **Once you make a decision, you can't take it back**.
+**Please don't skip unless it's absolutely necessary, and think hard
+before you vote. Once you make a decision, you can't take it back.**
 '''.strip()
 
 DEFAULT_EMAIL_SUBJECT = 'Welcome to Gavel!'
