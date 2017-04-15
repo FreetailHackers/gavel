@@ -2,12 +2,23 @@
 {% block title %}Start{% endblock %}
 {% block content %}
 <div class="item">
-  <div class="banner-tight">
-    <h1>Start</h1>
+  <div class="banner-tight" id="previous-header">
+    <h1>Current</h1>
   </div>
-  {% with item=item %}
-  {% include "_item.html" %}
-  {% endwith %}
+  <div id="previous-body">
+    {% with item=item %}
+    {% include "_item.html" %}
+    {% endwith %}
+  </div>
+</div>
+
+<div class="item">
+  <div class="banner-instructions">
+    <h1>Instructions</h1>
+  </div>
+  <div class="info">
+    {{ content }}
+  </div>
 </div>
 
 <div class="item">

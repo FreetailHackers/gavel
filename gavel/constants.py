@@ -25,6 +25,18 @@ you'll decide whether it's better or worse than the one you looked at
 before you vote. Once you make a decision, you can't take it back.**
 '''.strip()
 
+DEFAULT_BEGIN_MESSAGE = '''
+Please press "Done" once you have looked over this project. Press "Skip" if you cannot find this project at the assigned table.
+
+Your **first** vote will be recorded on the **next** team, since the system records votes based on how good a team is to the previous team you've seen.
+'''.strip()
+
+DEFAULT_VOTE_MESSAGE = '''
+Press "Previous" if you think the previous project is better than the current project, and press "Current" if you like the current project better than the previous one.
+
+Press "Skip" if you cannot find the current project at the assigned table.
+'''.strip()
+
 DEFAULT_EMAIL_SUBJECT = 'Welcome to Gavel!'
 
 DEFAULT_EMAIL_BODY = '''

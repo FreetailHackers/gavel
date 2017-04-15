@@ -2,7 +2,7 @@
 {% block title %}Welcome{% endblock %}
 {% block content %}
 <div class="item">
-  <div class="banner">
+  <div class="banner" id="previous-header">
     <h1>Welcome</h1>
   </div>
   <div class="info">
@@ -13,7 +13,7 @@
 <div class="item">
   <div class="info">
     <form action="/welcome/done" method="post">
-      <input type="submit" name="action" value="Done" class="button-full button-gap positive">
+      <input type="submit" name="action" value="Done" class="button-full button-gap" id="vote-done">
       <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     </form>
   </div>
