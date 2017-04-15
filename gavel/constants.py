@@ -11,8 +11,6 @@ SETTING_FALSE = 'false'
 # Defaults
 # these can be overridden via the config file
 DEFAULT_WELCOME_MESSAGE = '''
-Welcome to Gavel.
-
 **Please read this important message carefully before continuing.**
 
 Gavel is a fully automated expo judging system that both tells you where to go
