@@ -51,6 +51,8 @@ To access the system, visit {link}.
 
 Once you're in, please take the time to read the welcome message and
 instructions before continuing.
+
+Please go to judging orientation in the Senate room at 12:30PM.
 '''.strip()
 
 DEFAULT_CLOSED_MESSAGE = '''
