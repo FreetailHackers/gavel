@@ -1,5 +1,5 @@
 ANNOTATOR_ID = 'annotator_id'
-TELEMETRY_URL = 'https://telemetry.anish.io/api/v1/submit'
+TELEMETRY_URL = ''
 
 # Setting
 # keys
@@ -32,17 +32,17 @@ Your **first** vote will be recorded on the **next** team, since the system reco
 '''.strip()
 
 DEFAULT_VOTE_MESSAGE = '''
-Press "Previous" if you think the previous project is better than the current project, and press "Current" if you like the current project better than the previous one.
+Press "Previous" if you think the previous project is better than the current project, and press "Current" if you like the current project is better than the previous one.
 
 Press "Skip" if you cannot find the current project at the assigned table.
 '''.strip()
 
-DEFAULT_EMAIL_SUBJECT = 'Welcome to Gavel!'
+DEFAULT_EMAIL_SUBJECT = 'Welcome to HackTX Judging!'
 
 DEFAULT_EMAIL_BODY = '''
 Hi {name},
 
-Welcome to Gavel, the online expo judging system. This email contains your
+Welcome to Gavel, the online expo judging system that HackTX is using. This email contains your
 magic link to the judging system.
 
 DO NOT SHARE this email with others, as it contains your personal magic link.
@@ -54,11 +54,11 @@ instructions before continuing.
 '''.strip()
 
 DEFAULT_CLOSED_MESSAGE = '''
-The judging system is currently closed. Reload the page to try again.
+The judging system is currently closed. Reload the page to try again once the system has been opened.
 '''.strip()
 
 DEFAULT_DISABLED_MESSAGE = '''
-Your account is currently disabled. Reload the page to try again.
+Your account is currently disabled. Please contact an organizer to remedy the situation.
 '''.strip()
 
 DEFAULT_LOGGED_OUT_MESSAGE = '''
