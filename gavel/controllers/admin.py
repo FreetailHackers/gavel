@@ -226,18 +226,12 @@ def email_invite_links(annotators):
 	if not isinstance(annotators, list):
 		annotators = [annotators]
 	emails = []
+	for annotator in annotators:
+		link = annotator_link(annotator)
+		raw_body = settings.EMAIL_BODY.format(name=annotator.name, link=link)
+		body = '\n\n'.join(utils.get_paragraphs(raw_body))
+		emails.append((annotator.email, settings.EMAIL_SUBJECT, body))
 	if settings.USE_SENDGRID and settings.SENDGRID_API_KEY != None:
-		for annotator in annotators:
-			link = annotator_link(annotator)
-			raw_body = settings.EMAIL_BODY.format(name=annotator.name, link=link)
-			body ='\n\n'.join(utils.get_paragraphs(raw_body))
-			emails.append((annotator.email, settings.EMAIL_SUBJECT, body))
 		utils.send_sendgrid_emails(emails)
 	else:
-
-		for annotator in annotators:
-			link = annotator_link(annotator)
-			raw_body = settings.EMAIL_BODY.format(name=annotator.name, link=link)
-			body = '\n\n'.join(utils.get_paragraphs(raw_body))
-			emails.append((annotator.email, settings.EMAIL_SUBJECT, body))
 		utils.send_emails(emails)
