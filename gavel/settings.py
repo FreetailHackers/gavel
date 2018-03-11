@@ -7,49 +7,49 @@ CONFIG_FILE = os.path.join(BASE_DIR, '..', 'config.yaml')
 
 class Config(object):
 
-    def __init__(self, config_file):
-        if not _bool(os.environ.get('IGNORE_CONFIG_FILE', False)):
-            with open(config_file) as f:
-                self._config = yaml.safe_load(f)
-        else:
-            self._config = {}
+	def __init__(self, config_file):
+		if not _bool(os.environ.get('IGNORE_CONFIG_FILE', False)):
+			with open(config_file) as f:
+				self._config = yaml.safe_load(f)
+		else:
+			self._config = {}
 
-    # checks for an environment variable first, then an entry in the config file,
-    # and then falls back to default
-    def get(self, name, env_names=None, default=None):
-        setting = None
-        if env_names is not None:
-            if not isinstance(env_names, list):
-                env_names = [env_names]
-            for env_name in env_names:
-                setting = os.environ.get(env_name, None)
-                if setting is not None:
-                    break
-        if setting is None:
-            setting = self._config.get(name, None)
-        if setting is None:
-            if default is not None:
-                return default
-            else:
-                raise LookupError('Cannot find value for setting %s' % name)
-        return setting
+	# checks for an environment variable first, then an entry in the config file,
+	# and then falls back to default
+	def get(self, name, env_names=None, default=None):
+		setting = None
+		if env_names is not None:
+			if not isinstance(env_names, list):
+				env_names = [env_names]
+			for env_name in env_names:
+				setting = os.environ.get(env_name, None)
+				if setting is not None:
+					break
+		if setting is None:
+			setting = self._config.get(name, None)
+		if setting is None:
+			if default is not None:
+				return default
+			else:
+				raise LookupError('Cannot find value for setting %s' % name)
+		return setting
 
 def _bool(truth_value):
-    if isinstance(truth_value, bool):
-        return truth_value
-    if isinstance(truth_value, int):
-        return bool(truth_value)
-    if isinstance(truth_value, str):
-        if truth_value.isnumeric():
-            return bool(int(truth_value))
-        lower = truth_value.lower()
-        return lower.startswith('t') or lower.startswith('y') # accepts things like 'yes', 'True', ...
-    raise ValueError('invalid type for bool coercion')
+	if isinstance(truth_value, bool):
+		return truth_value
+	if isinstance(truth_value, int):
+		return bool(truth_value)
+	if isinstance(truth_value, str):
+		if truth_value.isnumeric():
+			return bool(int(truth_value))
+		lower = truth_value.lower()
+		return lower.startswith('t') or lower.startswith('y') # accepts things like 'yes', 'True', ...
+	raise ValueError('invalid type for bool coercion')
 
 def _list(item):
-    if isinstance(item, list):
-        return item
-    return [item]
+	if isinstance(item, list):
+		return item
+	return [item]
 
 c = Config(CONFIG_FILE)
 
@@ -62,6 +62,8 @@ SECRET_KEY =          c.get('secret_key',      'SECRET_KEY')
 PORT =            int(c.get('port',            'PORT',                     default=5000))
 MIN_VIEWS =       int(c.get('min_views',       'MIN_VIEWS',                default=2))
 TIMEOUT =       float(c.get('timeout',         'TIMEOUT',                  default=5.0)) # in minutes
+USE_SENDGRID = 	 bool(c.get('use_sendgrid',	   'USE_SENDGRID',			   default=False))
+SENDGRID_API_KEY = 	 (c.get('sendgrid_api_key','SENDGRID_API_KEY',	   	   default=None))
 WELCOME_MESSAGE =     c.get('welcome_message',                             default=constants.DEFAULT_WELCOME_MESSAGE)
 BEGIN_MESSAGE =       c.get('begin_message',                               default=constants.DEFAULT_BEGIN_MESSAGE)
 VOTE_MESSAGE =        c.get('vote_message',                                default=constants.DEFAULT_VOTE_MESSAGE)

@@ -1,5 +1,0 @@
-config.yaml
-*.pyc
-env/
-.vagrant/
-.DS_Store

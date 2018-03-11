@@ -11,106 +11,147 @@ import csv
 import io
 import re
 import smtplib
+import json
 import email
 import email.mime.multipart
 import email.mime.text
+sendgrid_url = "https://api.sendgrid.com/v3/mail/send"
+
+
 
 def gen_secret(length):
-    return base64.b32encode(os.urandom(length))[:length].decode('utf8').lower()
+	return base64.b32encode(os.urandom(length))[:length].decode('utf8').lower()
 
 def check_auth(username, password):
-    return username == 'admin' and password == settings.ADMIN_PASSWORD
+	return username == 'admin' and password == settings.ADMIN_PASSWORD
 
 def authenticate():
-    return Response('Access denied.', 401,
-        {'WWW-Authenticate': 'Basic realm="Login Required"'})
+	return Response('Access denied.', 401,
+		{'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 def requires_auth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
-        return f(*args, **kwargs)
-    return decorated
+	@wraps(f)
+	def decorated(*args, **kwargs):
+		auth = request.authorization
+		if not auth or not check_auth(auth.username, auth.password):
+			return authenticate()
+		return f(*args, **kwargs)
+	return decorated
 
 def data_to_csv_string(data):
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerows(data)
-    return output.getvalue()
+	output = io.StringIO()
+	writer = csv.writer(output)
+	writer.writerows(data)
+	return output.getvalue()
 
 def data_from_csv_string(string):
-    data_input = io.StringIO(string)
-    reader = csv.reader(data_input)
-    return list(reader)
+	data_input = io.StringIO(string)
+	reader = csv.reader(data_input)
+	return list(reader)
+
+def sendgrid_send_email(to_address, subject, body):
+	new_dict = {}
+	new_dict["personalizations"] = []
+	new_dict["personalizations"].append({"to": [{"email": to_address}], "subject": subject})
+	new_dict["from"] = {}
+	new_dict["from"]["email"] = settings.EMAIL_FROM
+	new_dict["subject"] = subject
+	new_dict["content"] = []
+	new_dict["content"].append({"type": "text/plain", "value": body})
+	headers = {
+		'authorization': "Bearer " + settings.SENDGRID_API_KEY,
+		'content-type': "application/json",
+		}
+
+	response = requests.request("POST", sendgrid_url, data=json.dumps(new_dict), headers=headers)
+	return response
+
+
+
 
 def get_paragraphs(message):
-    paragraphs = re.split(r'\n\n+', message)
-    paragraphs = [i.replace('\n', ' ') for i in paragraphs if i]
-    return paragraphs
+	paragraphs = re.split(r'\n\n+', message)
+	paragraphs = [i.replace('\n', ' ') for i in paragraphs if i]
+	return paragraphs
+
+def send_sendgrid_emails(emails):
+	exceptions = []
+	for e in emails:
+		to_address, subject, body = e
+		to_adddress = to_address[1:]
+		response = sendgrid_send_email(to_address, subject, body)
+		if not (response.status_code == requests.codes.ok or response.status_code == requests.codes.accepted):
+			all_errors = [error_obj["message"] for error_obj in response.json()["errors"]]
+			error_msg = to_address + ". Error: " + str(all_errors)
+			exceptions.append(error_msg)
+
+	if exceptions:
+		raise Exception('Error sending some emails to: %s' % exceptions)
+
+
+
 
 def send_emails(emails):
-    '''
-    Send a batch of emails.
+	'''
+	Send a batch of emails.
 
-    This function takes a list [(to_address, subject, body)].
-    '''
+	This function takes a list [(to_address, subject, body)].
+	'''
 
-    if settings.EMAIL_AUTH_MODE == 'tls':
-        server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-    elif settings.EMAIL_AUTH_MODE == 'ssl':
-        server = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
-    else:
-        raise ValueError('unsupported auth mode: %s' % settings.EMAIL_AUTH_MODE)
+	if settings.EMAIL_AUTH_MODE == 'tls':
+		server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
+		server.ehlo()
+		server.starttls()
+		server.ehlo()
+	elif settings.EMAIL_AUTH_MODE == 'ssl':
+		server = smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT)
+	else:
+		raise ValueError('unsupported auth mode: %s' % settings.EMAIL_AUTH_MODE)
 
-    server.login(settings.EMAIL_USER, settings.EMAIL_PASSWORD)
+	server.login(settings.EMAIL_USER, settings.EMAIL_PASSWORD)
 
-    exceptions = []
-    for e in emails:
-        try:
-            to_address, subject, body = e
-            msg = email.mime.multipart.MIMEMultipart()
-            msg['From'] = settings.EMAIL_FROM
-            msg['To'] = to_address
-            recipients = [to_address]
-            if settings.EMAIL_CC:
-                msg['Cc'] = ', '.join(settings.EMAIL_CC)
-                recipients.extend(settings.EMAIL_CC)
-            msg['Subject'] = subject
-            msg.attach(email.mime.text.MIMEText(body, 'plain'))
-            server.sendmail(settings.EMAIL_FROM, recipients, msg.as_string())
-        except Exception as e:
-            exceptions.append(e) # XXX is there a cleaner way to handle this?
+	exceptions = []
+	for e in emails:
+		try:
+			to_address, subject, body = e
+			msg = email.mime.multipart.MIMEMultipart()
+			msg['From'] = settings.EMAIL_FROM
+			msg['To'] = to_address
+			recipients = [to_address]
+			if settings.EMAIL_CC:
+				msg['Cc'] = ', '.join(settings.EMAIL_CC)
+				recipients.extend(settings.EMAIL_CC)
+			msg['Subject'] = subject
+			msg.attach(email.mime.text.MIMEText(body, 'plain'))
+			server.sendmail(settings.EMAIL_FROM, recipients, msg.as_string())
+		except Exception as e:
+			exceptions.append(e) # XXX is there a cleaner way to handle this?
 
-    server.quit()
-    if exceptions:
-        raise Exception('Error sending some emails: %s' % exceptions)
+	server.quit()
+	if exceptions:
+		raise Exception('Error sending some emails: %s' % exceptions)
 
 def render_markdown(content):
-    return Markup(markdown.markdown(content))
+	return Markup(markdown.markdown(content))
 
 def send_telemetry(identifier, data):
-    if not settings.SEND_STATS:
-        return
-    try:
-        requests.post(
-            constants.TELEMETRY_URL,
-            json={'identifier': identifier, 'data': data},
-            timeout=5
-        )
-    except Exception:
-        pass # don't want this to break anything else
+	if not settings.SEND_STATS:
+		return
+	try:
+		requests.post(
+			constants.TELEMETRY_URL,
+			json={'identifier': identifier, 'data': data},
+			timeout=5
+		)
+	except Exception:
+		pass # don't want this to break anything else
 
 # convert workbook sheet cells into integers if they are equal to integer
 # values and convert everything to a string
 def cast_row(row):
-    for i, item in enumerate(row):
-        if isinstance(item, (float, int)) and int(item) == item:
-            row[i] = str(int(item))
-        else:
-            row[i] = str(item)
-    return row
+	for i, item in enumerate(row):
+		if isinstance(item, (float, int)) and int(item) == item:
+			row[i] = str(int(item))
+		else:
+			row[i] = str(item)
+	return row
