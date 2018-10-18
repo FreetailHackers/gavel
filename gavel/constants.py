@@ -37,12 +37,12 @@ Press "Previous" if you think the previous project is better than the current pr
 Press "Skip" if you cannot find the current project at the assigned table.
 '''.strip()
 
-DEFAULT_EMAIL_SUBJECT = 'Welcome to Wholesome Hacks Judging!'
+DEFAULT_EMAIL_SUBJECT = 'Welcome to HackTX Judging!'
 
 DEFAULT_EMAIL_BODY = '''
 Hi {name},
 
-Welcome to Gavel, the online expo judging system that Wholesome Hacks is using. This email contains your
+Welcome to Gavel, the online expo judging system that HackTX is using. This email contains your
 magic link to the judging system.
 
 DO NOT SHARE this email with others, as it contains your personal magic link.
