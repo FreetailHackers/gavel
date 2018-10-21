@@ -35,6 +35,8 @@ DEFAULT_VOTE_MESSAGE = '''
 Press "Previous" if you think the previous project is better than the current project, and press "Current" if you like the current project is better than the previous one.
 
 Press "Skip" if you cannot find the current project at the assigned table.
+
+Please compare projects based on the following categories: Technical Proficiency, User Experience & User Interface, Ambition of Problem, Innovation of Solution, Hackiness.
 '''.strip()
 
 DEFAULT_EMAIL_SUBJECT = 'Welcome to HackTX Judging!'
@@ -51,6 +53,8 @@ To access the system, visit {link}.
 
 Once you're in, please take the time to read the welcome message and
 instructions before continuing.
+
+Please go to judging orientation in Room 105 at 12:45 PM.
 '''.strip()
 
 DEFAULT_CLOSED_MESSAGE = '''
